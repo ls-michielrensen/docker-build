@@ -1,7 +1,7 @@
-FROM docker as docker
+FROM docker
 
 FROM php:5.6-alpine
-COPY --from=docker /usr/local/bin /usr/local/bin
+COPY --from=0 /usr/local/bin /usr/local/bin
 
 # Additionals
 RUN apk add --no-cache \
