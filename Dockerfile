@@ -1,42 +1,59 @@
-FROM circleci/php:5.6
+FROM docker as docker
 
-# Packages
-RUN sudo apt-get update && sudo apt-get install -y \
-  apt-transport-https \
-  gnupg-curl \
+FROM php:5.6-alpine
+COPY --from=docker /usr/local/bin /usr/local/bin
+
+# Additionals
+RUN apk add --no-cache \
+  bash \
+  curl \
+  git \
+  openssl \
+  py-pip \
+  sudo && \
+  pip install docker-compose
+
+RUN apk add --no-cache --virtual build-dependencies \
+  binutils-gold \
+  g++ \
+  gcc \
+  libgcc \
+  libstdc++ \
+  linux-headers \
+  make
+
+# PHP
+RUN apk --no-cache add \
   libmcrypt-dev \
-  libxml2-dev \
-  mysql-client \
-  php5-cli \
-  vim \
-  wget \
-  zlib1g-dev \
-  --no-install-recommends && sudo rm -r /var/lib/apt/lists/* \
-  && sudo docker-php-ext-install mcrypt soap zip \
-  && sudo docker-php-ext-enable mcrypt soap zip
+  libxml2-dev && \
+  docker-php-ext-install mcrypt soap zip && \
+  docker-php-ext-enable mcrypt soap zip
 
 # Composer
 ENV COMPOSER_VERSION 1.4.2
-RUN curl -sS https://getcomposer.org/installer | sudo php -- --version="${COMPOSER_VERSION}" --install-dir="/usr/local/bin" --filename="composer"
+RUN curl -sS https://getcomposer.org/installer | php -- \
+  --version="${COMPOSER_VERSION}" \
+  --install-dir="/usr/local/bin" \
+  --filename="composer" && \
+  echo "export PATH=$PATH:/home/build/.composer/vendor/bin" > /etc/profile.d/composer.sh && \
+  composer global require codacy/coverage
 
-# NVM
+# Build user
+RUN addgroup -S build && adduser -S -g build -g wheel build -h /home/build -s /bin/bash && \
+  echo 'build ALL=(ALL) NOPASSWD:ALL' | sudo EDITOR='tee -a' visudo
+USER build
+
+# Yarn
 ENV NODE_VERSION 6.1.0
 ENV YARN_VERSION 0.27.5
-COPY nvm.sh /etc/profile.d/nvm.sh
-RUN sudo git clone https://github.com/creationix/nvm.git /opt/nvm; \
-  sudo mkdir -p /usr/local/node /usr/local/nvm && \
-  sudo chmod 0777 -R /usr/local/nvm; sudo chmod 0777 -R /usr/local/node; \
-  . /etc/profile.d/nvm.sh && \
-  nvm install $NODE_VERSION && \
-  nvm use $NODE_VERSION && \
-  nvm alias default $NODE_VERSION && \
-  nvm version && \
-  npm install -g yarn@${YARN_VERSION}
+ENV SHELL /bin/bash
+RUN touch ~/.bashrc && \
+  wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash && \
+  bash -c "source ~/.bashrc && \
+  nvm install -s $NODE_VERSION && \
+  npm install -g yarn@${YARN_VERSION}" && \
+  sudo apk del build-dependencies
 
-# Codacy Code Coverage
-RUN composer global require codacy/coverage
-COPY composer.sh /etc/profile.d/composer.sh  
+WORKDIR /home/build
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoints.sh
-
-ENTRYPOINT ["docker-entrypoints.sh"]
+ENTRYPOINT ["docker-entrypoint.sh"]

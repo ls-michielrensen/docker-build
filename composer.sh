@@ -1,1 +1,1 @@
-export PATH=$PATH:/home/circleci/.composer/vendor/bin
+export PATH=$PATH:/home/build/.composer/vendor/bin

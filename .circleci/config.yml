@@ -10,8 +10,11 @@ jobs:
       - run:
           name: Build container
           command: |
-            TAG="v${CIRCLE_BUILD_NUM}"
+            TAG="${CIRCLE_BRANCH}-v${CIRCLE_BUILD_NUM}"
             docker build -t michielrensen/docker-build:$TAG -t michielrensen/docker-build:latest .
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+                docker tag michielrensen/docker-build:$TAG michielrensen/docker-build:latest
+            fi
       - deploy:
           command: |
             docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
