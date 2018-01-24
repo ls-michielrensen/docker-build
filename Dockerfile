@@ -8,7 +8,7 @@ RUN sudo apt-get update && sudo apt-get install -y \
   libxml2-dev \
   moreutils \
   mysql-client \
-  php5-cli \
+  php5.6-cli \
   vim \
   wget \
   zlib1g-dev \
