@@ -6,6 +6,7 @@ RUN sudo apt-get update && sudo apt-get install -y \
   gnupg-curl \
   libmcrypt-dev \
   libxml2-dev \
+  moreutils \
   mysql-client \
   php5-cli \
   vim \
@@ -35,7 +36,7 @@ RUN sudo git clone https://github.com/creationix/nvm.git /opt/nvm; \
 
 # Codacy Code Coverage
 RUN composer global require codacy/coverage
-COPY composer.sh /etc/profile.d/composer.sh  
+COPY composer.sh /etc/profile.d/composer.sh
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoints.sh
 
