@@ -23,3 +23,10 @@ RUN export NVM_DIR="$HOME/.nvm" \
   && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" \
   && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" \
   && nvm install 8.9.1
+
+# AWS
+RUN sudo apt-get update && \
+  sudo apt-get install python3 && \
+  curl https://bootstrap.pypa.io/get-pip.py -o ~/get-pip.py && \
+  python ~/get-pip.py --user && \
+  ~/.local/bin/pip install awscli --upgrade --user
