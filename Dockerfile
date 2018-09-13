@@ -3,7 +3,8 @@ FROM circleci/php:5.6-cli-node-browsers
 # Packages
 RUN sudo apt-get update && sudo apt-get install -y \
   apt-transport-https \
-  gnupg-curl \
+  curl \
+  gnupg1-curl \
   libmcrypt-dev \
   libxml2-dev \
   moreutils \
@@ -11,8 +12,9 @@ RUN sudo apt-get update && sudo apt-get install -y \
   vim \
   wget \
   zlib1g-dev \
+  libpng-dev \
   --no-install-recommends && sudo rm -r /var/lib/apt/lists/* \
-  && sudo docker-php-ext-install mcrypt soap zip \
+  && sudo docker-php-ext-install mcrypt soap zip gd \
   && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
 
 # Composer
