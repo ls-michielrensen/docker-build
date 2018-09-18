@@ -1,4 +1,4 @@
-FROM circleci/php:5.6-cli-node-browsers
+FROM circleci/php:7.2-apache-node-browsers-legacy
 
 # Packages
 RUN sudo apt-get update && sudo apt-get install -y \
@@ -14,11 +14,11 @@ RUN sudo apt-get update && sudo apt-get install -y \
   zlib1g-dev \
   libpng-dev \
   --no-install-recommends && sudo rm -r /var/lib/apt/lists/* \
-  && sudo docker-php-ext-install mcrypt soap zip gd \
+  && sudo docker-php-ext-install soap zip gd \
   && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
 
 # Composer
-RUN  composer global require codacy/coverage "phpunit/phpcov:~3.0" "phpunit/phpunit:^5.7" "sensiolabs/security-checker:^3.0"
+RUN  composer global require codacy/coverage "phpunit/phpunit:7.3.*" "sensiolabs/security-checker:^3.0"
 
 # NVM
 RUN export NVM_DIR="$HOME/.nvm" \
